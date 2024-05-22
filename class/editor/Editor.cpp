@@ -41,8 +41,12 @@ void Editor::openFolder() {
     QString folderName = QFileDialog::getExistingDirectory(this, "Open folder");
     if (folderName.isEmpty())
         return;
-    QDir directory("Pictures/MyPictures");
-    QStringList images = directory.entryList(QStringList() << "*",QDir::Files);
+    QDir directory(folderName);
+    ui->textBrowser->clear();
+    QStringList elements = directory.entryList(QStringList(),QDir::AllEntries);
+    for (auto& element : elements) {
+        ui->textBrowser->append(element);
+    }
 }
 
 void Editor::save() {
