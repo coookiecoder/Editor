@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QPushButton>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Editor; }
@@ -22,8 +23,9 @@ private slots:
     void    on_actionOpen_folder_triggered() {openFolder();};
 
 private:
-    Ui::Editor* ui;
-    QString     _currentFile;
+    Ui::Editor*     ui;
+    QString         _currentFile;
+    QPushButton**   _button;
 
     void    newDocument();
     void    open();

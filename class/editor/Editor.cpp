@@ -5,9 +5,10 @@
 #include <QMessageBox>
 #include <QStringListModel>
 #include <QFileSystemModel>
+#include <QPushButton>
 #include "ui_Editor.h"
 
-Editor::Editor(QWidget *parent) : QMainWindow(parent), ui(new Ui::Editor) {
+Editor::Editor(QWidget *parent) : QMainWindow(parent), ui(new Ui::Editor), _button(nullptr) {
     ui->setupUi(this);
 }
 
@@ -17,7 +18,7 @@ Editor::~Editor() {
 
 void    Editor::newDocument() {
     _currentFile.clear();
-    ui->textEdit->setText(QString());
+    ui->TextEditor->setText(QString());
 }
 
 void Editor::open() {
@@ -33,7 +34,7 @@ void Editor::open() {
     setWindowTitle(fileName);
     QTextStream in(&file);
     QString text = in.readAll();
-    ui->textEdit->setText(text);
+    ui->TextEditor->setText(text);
     file.close();
 }
 
@@ -42,11 +43,33 @@ void Editor::openFolder() {
     if (folderName.isEmpty())
         return;
     QDir directory(folderName);
-    ui->textBrowser->clear();
     QStringList elements = directory.entryList(QStringList(),QDir::AllEntries);
-    for (auto& element : elements) {
-        ui->textBrowser->append(element);
+
+    int idx = 0;
+    if (_button != nullptr) {
+        while (auto& button = _button[idx]) {
+            delete button;
+            idx++;
+        }
+        delete _button;
+        ui->ScrollBar->setLayout(ui->FileMenu);
+        ui->ScrollBar->setVisible(true);
     }
+
+    _button = new QPushButton*[elements.size() + 1 - 2];
+    idx = 0;
+
+    for (auto& element : elements) {
+        if (idx < 2) {
+            idx++;
+            continue;
+        }
+        _button[idx - 2] = new QPushButton(element);
+        _button[idx - 2]->setMinimumHeight(10);
+        ui->FileMenu->addWidget(_button[idx++ - 2]);
+    }
+
+    _button[idx - 2] = nullptr;
 }
 
 void Editor::save() {
@@ -66,7 +89,7 @@ void Editor::save() {
     }
     setWindowTitle(fileName);
     QTextStream out(&file);
-    QString text = ui->textEdit->toPlainText();
+    QString text = ui->TextEditor->toPlainText();
     out << text;
     file.close();
 }
@@ -84,7 +107,7 @@ void Editor::saveAs() {
     _currentFile = fileName;
     setWindowTitle(fileName);
     QTextStream out(&file);
-    QString text = ui->textEdit->toPlainText();
+    QString text = ui->TextEditor->toPlainText();
     out << text;
     file.close();
 }
